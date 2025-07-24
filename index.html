@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Message Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffa5a5 0%, #fe5454 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-width: 350px;
+            width: 100%;
+        }
+
+        .display {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #screen {
+            font-size: 2rem;
+            color: white;
+            text-align: right;
+            min-height: 40px;
+            word-wrap: break-word;
+            font-weight: 500;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        button {
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .operator {
+            background: rgba(255, 107, 107, 0.3) !important;
+        }
+
+        .operator:hover {
+            background: rgba(255, 107, 107, 0.5) !important;
+        }
+
+        .equals {
+            background: rgba(72, 187, 120, 0.3) !important;
+        }
+
+        .equals:hover {
+            background: rgba(72, 187, 120, 0.5) !important;
+        }
+
+        .clear {
+            background: rgba(237, 137, 54, 0.3) !important;
+        }
+
+        .clear:hover {
+            background: rgba(237, 137, 54, 0.5) !important;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.8s ease;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 30px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .love-letter {
+            text-align: center;
+            color: #333;
+        }
+
+        .love-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #d63384;
+        }
+
+        .love-message {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.4rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff6b6b;
+            font-size: 20px;
+            animation: floatHeart 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.7) translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-60px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                padding: 20px;
+            }
+
+            #screen {
+                font-size: 1.5rem;
+            }
+
+            button {
+                padding: 15px;
+                font-size: 1rem;
+            }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
+
+            .love-title {
+                font-size: 2rem;
+            }
+
+            .love-message {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <div id="screen">0</div>
+        </div>
+        
+        <div class="buttons">
+            <button onclick="clearScreen()" class="clear">C</button>
+            <button onclick="deleteLast()">⌫</button>
+            <button onclick="appendToScreen('/')" class="operator">÷</button>
+            <button onclick="appendToScreen('*')" class="operator">×</button>
+
+            <button onclick="appendToScreen('7')">7</button>
+            <button onclick="appendToScreen('8')">8</button>
+            <button onclick="appendToScreen('9')">9</button>
+            <button onclick="appendToScreen('-')" class="operator">-</button>
+
+            <button onclick="appendToScreen('4')">4</button>
+            <button onclick="appendToScreen('5')">5</button>
+            <button onclick="appendToScreen('6')">6</button>
+            <button onclick="appendToScreen('+')" class="operator">+</button>
+
+            <button onclick="appendToScreen('1')">1</button>
+            <button onclick="appendToScreen('2')">2</button>
+            <button onclick="appendToScreen('3')">3</button>
+            <button onclick="calculate()" class="equals" style="grid-row: span 2;">=</button>
+
+            <button onclick="appendToScreen('0')" style="grid-column: span 2;">0</button>
+            <button onclick="appendToScreen('.')">.</button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="loveModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div class="love-letter">
+                <h1 class="love-title">Special Message ❤️</h1>
+                <p class="love-message">This is a placeholder surprise message.</p>
+                <p class="love-message">You can customize this message in the HTML.</p>
+                <p class="love-message">Try solving <code>23 * 9 - 150 + 6 - 20</code> to trigger it!</p>
+                <p class="love-message">Perfect for surprises, LDR messages, or just fun projects 💌</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let shouldResetScreen = false;
+
+        function updateScreen() {
+            document.getElementById('screen').textContent = currentInput;
+        }
+
+        function appendToScreen(value) {
+            if (shouldResetScreen) {
+                currentInput = '0';
+                shouldResetScreen = false;
+            }
+
+            if (currentInput === '0' && value !== '.') {
+                currentInput = value;
+            } else {
+                currentInput += value;
+            }
+            updateScreen();
+        }
+
+        function clearScreen() {
+            currentInput = '0';
+            updateScreen();
+        }
+
+        function deleteLast() {
+            currentInput = currentInput.length > 1 ? currentInput.slice(0, -1) : '0';
+            updateScreen();
+        }
+
+        function calculate() {
+            try {
+                let expression = currentInput.replace(/×/g, '*').replace(/÷/g, '/');
+
+                if (expression === '23*9-150+6-20') {
+                    let result = eval(expression);
+                    typeWriter(result.toString(), () => {
+                        typeWriter("Surprise! 🎉", () => {
+                            showLoveModal();
+                        });
+                    });
+                    currentInput = result.toString();
+                } else {
+                    let result = eval(expression);
+                    currentInput = result.toString();
+                    updateScreen();
+                }
+
+                shouldResetScreen = true;
+            } catch {
+                currentInput = 'Error';
+                updateScreen();
+                shouldResetScreen = true;
+            }
+        }
+
+        function typeWriter(text, callback) {
+            const screen = document.getElementById('screen');
+            screen.textContent = '';
+            let i = 0;
+            function type() {
+                if (i < text.length) {
+                    screen.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 100);
+                } else if (callback) {
+                    setTimeout(callback, 1000);
+                }
+            }
+            type();
+        }
+
+        function showLoveModal() {
+            const modal = document.getElementById('loveModal');
+            modal.style.display = 'flex';
+            createFloatingHearts();
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('loveModal');
+            modal.style.display = 'none';
+            document.querySelectorAll('.heart').forEach(h => h.remove());
+            document.body.style.overflow = 'auto';
+        }
+
+        function createFloatingHearts() {
+            const modal = document.getElementById('loveModal');
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.innerHTML = '❤️';
+                    heart.style.left = Math.random() * 90 + '%';
+                    heart.style.top = Math.random() * 90 + '%';
+                    heart.style.animationDelay = Math.random() * 2 + 's';
+                    heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                    modal.appendChild(heart);
+                    setTimeout(() => heart.remove(), 5000);
+                }, i * 200);
+            }
+        }
+
+        window.onclick = e => {
+            if (e.target === document.getElementById('loveModal')) closeModal();
+        };
+
+        document.addEventListener('keydown', function (e) {
+            if (!isNaN(e.key) || ['+', '-', '*', '/', '.'].includes(e.key)) appendToScreen(e.key);
+            else if (e.key === 'Enter' || e.key === '=') calculate();
+            else if (e.key === 'Backspace') deleteLast();
+            else if (e.key.toLowerCase() === 'c' || e.key === 'Escape') clearScreen();
+        });
+
+        updateScreen();
+    </script>
+</body>
+</html>
